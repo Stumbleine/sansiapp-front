@@ -107,8 +107,6 @@ export default function EditOffer({ offer, handleSnack, companies }) {
 			descuento: offer.discount || '',
 			condiciones: offer.conditions || '',
 			id_empresa: offer.companie.id_empresa || '',
-			total_codes: offer.total_codes,
-			rest_codes: offer.rest_codes,
 			cod_pregenerado: offer.cod_pregenerado,
 			stock: offer.stock || '',
 		},

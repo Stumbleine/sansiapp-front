@@ -1,4 +1,4 @@
-import { Business, VisibilityOff, WarningAmber } from '@mui/icons-material';
+import { Business, Visibility, VisibilityOff, WarningAmber } from '@mui/icons-material';
 import {
 	Card,
 	CardActions,
@@ -149,7 +149,10 @@ export default function Offer({ offer, handleSnack, companies }) {
 				</CardContent>
 			</OfferDetail>
 			<CardActions sx={{ justifyContent: 'end' }}>
-				<SoldOut soldAsync={soldAsync} id={offer.id_offer}></SoldOut>
+				<SoldOut
+					soldAsync={soldAsync}
+					id={offer.id_offer}
+					status={offer.status}></SoldOut>
 				{privilegeEdit && (
 					<>
 						<EditOfferPB offer={offer} handleSnack={handleSnack} />
@@ -168,7 +171,7 @@ export default function Offer({ offer, handleSnack, companies }) {
 	);
 }
 
-export function SoldOut({ soldAsync, id, itemName, disabled }) {
+export function SoldOut({ soldAsync, id, status }) {
 	const [open, setOpen] = useState(false);
 	/**
 	 * Cambia el estado open a true (abre el dialogo)
@@ -194,16 +197,27 @@ export function SoldOut({ soldAsync, id, itemName, disabled }) {
 
 	return (
 		<>
-			<Tooltip title="Ocultar/Agotar">
-				<IconButton disabled={disabled || false} size="small" onClick={handleClickOpen}>
-					<VisibilityOff
-						sx={{
-							color: disabled ? 'disabled' : 'text.icon',
-							'&:hover': {
-								color: 'error.light',
-							},
-						}}
-					/>
+			<Tooltip title={status === 'AGOTADO' ? 'Mostrar' : 'Ocultar'}>
+				<IconButton disabled={false} size="small" onClick={handleClickOpen}>
+					{status === 'AGOTADO' ? (
+						<VisibilityOff
+							sx={{
+								color: 'text.icon',
+								'&:hover': {
+									color: 'error.light',
+								},
+							}}
+						/>
+					) : (
+						<Visibility
+							sx={{
+								color: 'text.icon',
+								'&:hover': {
+									color: 'error.light',
+								},
+							}}
+						/>
+					)}
 				</IconButton>
 			</Tooltip>
 			<Dialog
@@ -211,12 +225,17 @@ export function SoldOut({ soldAsync, id, itemName, disabled }) {
 				open={open}
 				TransitionComponent={Transition}
 				onClose={handleClose}>
-				<DialogTitle>{'Esta seguro de declarar esta oferta como agotado?'}</DialogTitle>
+				<DialogTitle>
+					{status === 'AGOTADO'
+						? 'Esta seguro de mostrar esta oferta?'
+						: 'Esta seguro de ocultar esta oferta?'}
+				</DialogTitle>
 				<DialogContent>
 					<DialogContentText display="flex" alignItems="center">
 						<WarningAmber color="error" sx={{ mr: 1 }} />
-						Esta acción ocultara la oferta para los estudiantes, hasta que existan mas
-						items en stock.
+						{status === 'AGOTADO'
+							? 'Esta acción hara que la oferta se muestre a los estudiantes nuevamente.'
+							: 'Esta acción hara que la oferta pase al estado AGOTADO, y no se mostrara a los estudiantes.'}
 					</DialogContentText>
 				</DialogContent>
 				<DialogActions>
@@ -230,7 +249,7 @@ export function SoldOut({ soldAsync, id, itemName, disabled }) {
 								handleClose();
 							});
 						}}>
-						Declarar como agotado
+						{status === 'AGOTADO' ? 'Mostrar' : 'Ocultar'}
 					</Button>
 				</DialogActions>
 			</Dialog>
