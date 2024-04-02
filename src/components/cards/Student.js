@@ -1,5 +1,5 @@
 import { Card, CardMedia, Grid, Stack, Typography } from '@mui/material';
-import { green, grey, orange } from '@mui/material/colors';
+import { green, grey, orange, red } from '@mui/material/colors';
 import { Box } from '@mui/system';
 
 /**
@@ -63,7 +63,7 @@ export default function Student({ offer, student }) {
 						}}>
 						¡Código canjeado!
 					</Box>
-					{offer.stock < 5 && (
+					{offer.stock < 5 && offer.stock > 0 && (
 						<Box
 							sx={{
 								fontWeight: 'bold',
@@ -76,6 +76,21 @@ export default function Student({ offer, student }) {
 							<Typography color="white">
 								Aviso: El stock de su oferta es baja, tome precauciones para evitar
 								confusiones sobre la disponibilidad.
+							</Typography>
+						</Box>
+					)}
+					{offer.stock == 0 && (
+						<Box
+							sx={{
+								fontWeight: 'bold',
+								background: red[100],
+								textAlign: 'center',
+								width: 1,
+								p: 1,
+								borderRadius: 5,
+							}}>
+							<Typography color="error">
+								Aviso: El stock se ha agotado, la oferta no se mostrara a los estudiantes.
 							</Typography>
 						</Box>
 					)}
