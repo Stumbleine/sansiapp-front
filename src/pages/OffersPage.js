@@ -38,6 +38,8 @@ export default function OffersPage() {
 	const { isLoading, filterLoading, offers, fetchFailed } = useSelector(
 		state => state.offers
 	);
+	const { selectRubros } = useSelector(state => state.companies);
+
 	const dispatch = useDispatch();
 
 	const [showButton, setShowButton] = useState(false);
@@ -46,6 +48,7 @@ export default function OffersPage() {
 	const [search, setSearch] = useState('All');
 	const [idc, setIDC] = useState('All');
 	const [status, setStatus] = useState('All');
+	const [rubro, setRubro] = useState('All');
 	const [snack, setSnack] = useState({
 		open: false,
 		msg: '',
@@ -116,7 +119,7 @@ export default function OffersPage() {
 	 */
 	const handleCompanie = event => {
 		setIDC(event.target.value);
-		dispatch(filterOffersAsync(accessToken, search, event.target.value, status));
+		dispatch(filterOffersAsync(accessToken, search, event.target.value, status, rubro));
 	};
 	/**
 	 * Realiza dispatch hacia filterOffersAsync para filtrar ofertas por su estado "VIGENTE" o "EXPIRADO"
@@ -125,7 +128,7 @@ export default function OffersPage() {
 	 */
 	const handleStatus = event => {
 		setStatus(event.target.value);
-		dispatch(filterOffersAsync(accessToken, search, idc, event.target.value));
+		dispatch(filterOffersAsync(accessToken, search, idc, event.target.value, rubro));
 	};
 	/**
 	 * Realiza dispatch hacia filterOffersAsync para buscar ofertas por caracteres ingresados
@@ -134,7 +137,12 @@ export default function OffersPage() {
 	 */
 	const handleSearch = values => {
 		setSearch(values.search);
-		dispatch(filterOffersAsync(accessToken, values.search, idc, status));
+		dispatch(filterOffersAsync(accessToken, values.search, idc, status, rubro));
+	};
+
+	const handleRubro = event => {
+		setRubro(event.target.value);
+		dispatch(offersViewAsync(accessToken, search, idc, status, event.target.value));
 	};
 
 	const [companies, setCompanies] = useState(null);
@@ -160,16 +168,16 @@ export default function OffersPage() {
 			<Grid container spacing={2}>
 				{offers && !filterLoading && !fetchFailed
 					? offers.map(offer => (
-							<Grid item key={offer.id_offer} xs={6} sm={4} md={3} xl={3}>
-								<Offer offer={offer} handleSnack={handleSnack} companies={companies} />
-							</Grid>
-					  ))
+						<Grid item key={offer.id_offer} xs={6} sm={4} md={3} xl={3}>
+							<Offer offer={offer} handleSnack={handleSnack} companies={companies} />
+						</Grid>
+					))
 					: (isLoading || filterLoading) &&
-					  [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]?.map((sk, index) => (
-							<Grid item key={index} xs={6} sm={4} md={3} xl={3}>
-								<SkeletonOffer />
-							</Grid>
-					  ))}
+					[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]?.map((sk, index) => (
+						<Grid item key={index} xs={6} sm={4} md={3} xl={3}>
+							<SkeletonOffer />
+						</Grid>
+					))}
 				{(fetchFailed || (!offers && !isLoading && !filterLoading)) && msgOffersNull()}
 			</Grid>
 		);
@@ -247,6 +255,7 @@ export default function OffersPage() {
 										))}
 									</Select>
 								</FormControl>
+
 							)}
 
 							<FormControl sx={{ minWidth: { xs: 1, sm: 160 } }} size="small">
@@ -260,6 +269,22 @@ export default function OffersPage() {
 									<MenuItem value="All">Todos</MenuItem>
 									<MenuItem value="VIGENTE">Vigente</MenuItem>
 									<MenuItem value="EXPIRADO">Expirado</MenuItem>
+								</Select>
+							</FormControl>
+							<FormControl sx={{ minWidth: { xs: 1, sm: 160 } }} size="small">
+								<InputLabel id="rubro-label">Rubro</InputLabel>
+								<Select
+									labelId="rubro-label"
+									id="rubro-filter"
+									defaultValue={'All'}
+									onChange={handleRubro}
+									input={<OutlinedInput id="rubro-filter" label="Rubro" />}>
+									<MenuItem value="All">Todos</MenuItem>
+									{selectRubros?.map(r => (
+										<MenuItem key={r.nombre} value={r.nombre}>
+											{r.nombre}
+										</MenuItem>
+									))}
 								</Select>
 							</FormControl>
 						</FilterBar>

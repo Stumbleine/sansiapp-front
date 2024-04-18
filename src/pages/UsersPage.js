@@ -59,6 +59,7 @@ export default function UsersPage() {
 	const [search, setSearch] = useState('All');
 	const [rol, setRol] = useState('All');
 	const [sesion, setSesion] = useState('All');
+	const [faculty, setFaculty] = useState('All');
 
 	const privilegeCreate = hasPrivilege(
 		['gestionar usuarios', 'crear usuario'],
@@ -110,6 +111,11 @@ export default function UsersPage() {
 	const handleSearch = values => {
 		setSearch(values.search);
 		dispatch(usersAsync(accessToken, page, values.search, rol, sesion));
+	};
+
+	const handleFaculty = event => {
+		setFaculty(event.target.value);
+		dispatch(usersAsync(accessToken, page, search, rol, sesion, event.target.value));
 	};
 
 	// let { pageUrl } = useParams();
@@ -176,6 +182,23 @@ export default function UsersPage() {
 									<MenuItem value="All">Todos</MenuItem>
 									<MenuItem value="online">Online</MenuItem>
 									<MenuItem value="offline">Offline</MenuItem>
+								</Select>
+							</FormControl>
+							<FormControl sx={{ minWidth: { xs: 1, sm: 160 } }} size="small">
+								<InputLabel id="faculty-label">Facultad</InputLabel>
+								<Select
+									labelId="faculty-label"
+									id="faculty-filter"
+									defaultValue={'All'}
+									onChange={handleFaculty}
+									input={<OutlinedInput id="sesion-filter" label="Facultad" />}>
+									<MenuItem value="All">Todos</MenuItem>
+									<MenuItem value="fcyt">Facultad de Ciencias y Tecnologia</MenuItem>
+									<MenuItem value="fce">Facultad de Ciencias Económicas.</MenuItem>
+									<MenuItem value="fcjp">Facultad de Ciencias Jurídicas y Políticas</MenuItem>
+									<MenuItem value="fach">Facultad de Arquitectura y Ciencias del Hábitat</MenuItem>
+									<MenuItem value="fm">Facultad de Medicina</MenuItem>
+									<MenuItem value="fcap">Facultad de Ciencias Agrícolas y Pecuarias</MenuItem>
 								</Select>
 							</FormControl>
 						</FilterBar>

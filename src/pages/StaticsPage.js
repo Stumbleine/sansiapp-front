@@ -132,11 +132,11 @@ export default function StaticsPage() {
 					</Box>
 				</Stack>
 				<Grid container spacing={2}>
-					<Grid item xs={12} md={7}>
-						<OffersViewed />
-					</Grid>
-					<Grid item xs={12} md={5}>
+					<Grid item xs={12}>
 						<OffersViewTable />
+					</Grid>
+					<Grid item xs={12}>
+						<OffersViewed />
 					</Grid>
 					<Grid item xs={12} md={6}>
 						<CodeGenerated />

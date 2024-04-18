@@ -14,6 +14,8 @@ const initialState = {
 	summary: null,
 	codeGenerated: null,
 	codeRedeemed: null,
+	page: 0,
+	total: 0,
 };
 /**
  * Creacion y configuracion del Slice, reducers
@@ -24,7 +26,9 @@ const staticsSlice = createSlice({
 	initialState,
 	reducers: {
 		setOffersView: (state, { payload }) => {
-			state.offersView = payload;
+			state.offersView = payload.offers;
+			state.total = payload.total;
+			
 		},
 		setOffersChart: (state, { payload }) => {
 			state.offersViewChart = payload;
@@ -45,6 +49,9 @@ const staticsSlice = createSlice({
 			state.codeGenerated = null;
 			state.codeRedeemed = null;
 		},
+		setPage: (state, { payload }) => {
+			state.page = payload;
+		},
 	},
 });
 
@@ -55,6 +62,7 @@ export const {
 	setCodeGenerated,
 	setCodeRedeemed,
 	setCleanStatics,
+	setPage
 } = staticsSlice.actions;
 export default staticsSlice.reducer;
 /**
@@ -80,9 +88,9 @@ export const summaryAsync = token => async dispatch => {
  * @param {String} token access_token del usuario
  * @property {Function} dispatch funcion que ejecuta funciones del reducer de companiesSlice
  */
-export const offersViewAsync = token => async dispatch => {
+export const offersViewAsync = (token, page = 0, rubro = "All", status = "All") => async dispatch => {
 	try {
-		const r = await API.get(`/analitycs/offers-views`, {
+		const r = await API.get(`/analitycs/offers-views?pag=${page}&search=${rubro}&status=${status}`, {
 			headers: { Authorization: `Bearer ${token}` },
 		});
 		dispatch(setOffersView(r.data));
