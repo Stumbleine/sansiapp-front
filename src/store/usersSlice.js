@@ -57,13 +57,13 @@ const usersSlice = createSlice({
  * @property {Function} dispatch funcion que ejecuta funciones del reducer de complaintSlice
  */
 export const usersAsync =
-	(token, page = 0, search = 'All', rol = 'All', sesion = 'All') =>
+	(token, page = 0, search = 'All', rol = 'All', sesion = 'All', faculty = 'All') =>
 	async dispatch => {
 		search = search === '' ? 'All' : search;
 		dispatch(setLoading());
 		try {
 			const r = await API.get(
-				`/user/list?pag=${page}&search=${search}&rol=${rol}&sesion=${sesion}`,
+				`/user/list?pag=${page}&search=${search}&rol=${rol}&sesion=${sesion}&faculty=${faculty}`,
 				{
 					headers: { Authorization: `Bearer ${token}` },
 				}

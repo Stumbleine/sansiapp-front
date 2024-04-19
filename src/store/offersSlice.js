@@ -74,13 +74,13 @@ export const getOffersAsync = token => async dispatch => {
  * @property {Function} dispatch funcion que ejecuta funciones del reducer de complaintSlice
  */
 export const filterOffersAsync =
-	(token, search = 'All', idc, status) =>
+	(token, search = 'All', idc, status, rubro) =>
 	async dispatch => {
 		search = search === '' ? 'All' : search;
 		dispatch(setFilterLoading());
 		try {
 			const r = await API.get(
-				`beneficio/list?search=${search}&idc=${idc}&status=${status}`,
+				`beneficio/list?search=${search}&idc=${idc}&status=${status}&rubro=${rubro}`,
 				{
 					headers: { Authorization: `Bearer ${token}` },
 				}
