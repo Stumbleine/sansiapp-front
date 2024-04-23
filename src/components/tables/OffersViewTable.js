@@ -1,19 +1,28 @@
 import {
+	FormControl,
+	InputLabel,
+	MenuItem,
+	OutlinedInput,
 	Paper,
+	Select,
 	Stack,
 	Table,
 	TableBody,
 	TableCell,
 	TableContainer,
 	TableHead,
+	TablePagination,
 	TableRow,
 	Typography,
 } from '@mui/material';
 import { Box } from '@mui/system';
 import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { offersViewAsync, setPage } from '../../store/statisticsSlice';
+import { offersViewAsync, setOffersByFilter, setPage } from '../../store/statisticsSlice';
 import SkeletonTable from '../skeletons/SkeletonTable';
+import { getRubros } from '../../store/companiesSlice';
+import OfferStatusLabel from '../label/OfferStatusLabel';
+
 /**
  * Tabla de ofertas con mas visualizaciones
  * @component OffersViewTable
@@ -24,7 +33,7 @@ export default function OffersViewTable() {
 
 	const { accessToken } = useSelector(state => state.login);
 	const { isAdmin } = useSelector(state => state.user);
-	const { offersView, page, total } = useSelector(state => state.statics);
+	const { offersView,} = useSelector(state => state.statics);
 	const { selectRubros } = useSelector(state => state.companies);
 	const [statusFetch, setStatusFetch] = useState({
 		error: false,
@@ -36,7 +45,7 @@ export default function OffersViewTable() {
 
 	const handleStatus = event => {
 		setStatus(event.target.value);
-		dispatch(offersViewAsync(accessToken, page, rubro, event.target.value));
+		dispatch(setOffersByFilter({"rubro": rubro, "status":event.target.value}));
 	};
 
 	useEffect(() => {
@@ -47,7 +56,7 @@ export default function OffersViewTable() {
 		 */
 		const fetch = async () => {
 			setStatusFetch({ error: false, success: false, isLoading: true });
-			return await dispatch(offersViewAsync(accessToken, page, rubro, status));
+			return await dispatch(offersViewAsync(accessToken));
 		};
 		fetch()
 			.then(r => {
@@ -64,14 +73,32 @@ export default function OffersViewTable() {
 	TABLE_HEAD.push({ id: 'vis', label: 'Vistas' });
 	TABLE_HEAD.push({ id: 'canjeados', label: 'Canjeados' });
 
-	const count = Math.ceil(total / 10);
-	const handlePageActual = (event, value) => {
-		dispatch(setPage(parseInt(value) - 1));
-	};
 	const handleRubro = event => {
 		setRubro(event.target.value);
-		dispatch(offersViewAsync(accessToken, page, event.target.value, status));
+		dispatch(setOffersByFilter({"rubro":event.target.value, "status":status}));
 	};
+
+	const [rowsPerPage, setRowsPerPage] = useState(10);
+	const [page, setPage] = useState(0);
+	/**
+	 * Cambia de pagina en la tabla
+	 * @function handleChangePage
+	 * @param {Object} event
+	 */
+	const handleChangePage = (event, newPage) => {
+		setPage(newPage);
+	};
+	/**
+	 * Cambia la cantidad de productos a mostrarse en la tabla
+	 * @function handleChangeRowsPerPage
+	 * @param {Object} event
+	 */
+	const handleChangeRowsPerPage = event => {
+		setRowsPerPage(parseInt(event.target.value, 10));
+		setPage(0);
+	};
+
+
 	return (
 		<Box>
 			<Stack
@@ -92,8 +119,11 @@ export default function OffersViewTable() {
 						<MenuItem value="All">Todos</MenuItem>
 						<MenuItem value="VIGENTE">Vigente</MenuItem>
 						<MenuItem value="EXPIRADO">Expirado</MenuItem>
+						<MenuItem value="AGOTADO">Agotado</MenuItem>
 					</Select>
 				</FormControl>
+				{
+				isAdmin &&	
 				<FormControl sx={{ minWidth: { xs: 1, sm: 160 } }} size="small">
 					<InputLabel id="rubro-label">Rubro</InputLabel>
 					<Select
@@ -110,6 +140,7 @@ export default function OffersViewTable() {
 						))}
 					</Select>
 				</FormControl>
+					}
 			</Stack>
 			<TableContainer component={Paper} sx={{ borderRadius: 2 }}>
 				<Table size="small">
@@ -123,8 +154,9 @@ export default function OffersViewTable() {
 						</TableRow>
 					</TableHead>
 					<TableBody>
-						{offersView
-							? offersView?.map(offer => (
+						{offersView? 
+						offersView?.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+						.map(offer => (
 								<TableRow key={offer.id_beneficio} hover>
 									<TableCell component="th" scope="row">
 										<Stack alignItems="center" direction="row" spacing={1}>
@@ -144,9 +176,8 @@ export default function OffersViewTable() {
 											/>
 											<Typography
 												style={{
-													maxWidth: 150,
-													whiteSpace: 'nowrap',
-													textOverflow: 'ellipsis',
+													maxWidth: 300,
+													whiteSpace: 'pre-wrap',
 													overflow: 'hidden',
 												}}>
 												{offer.titulo}
@@ -158,12 +189,12 @@ export default function OffersViewTable() {
 											variant="body2"
 											sx={{ color: 'text.secondary' }}
 											noWrap>
-											{offer.status}
+												<OfferStatusLabel status= {offer.status}></OfferStatusLabel>
 										</Typography>
 									</TableCell>
 
-									{isAdmin && <TableCell align="center">{offer.company.razon_social}</TableCell>}
-									{isAdmin && <TableCell align="center">{offer.company.rubro}</TableCell>}
+									{isAdmin && <TableCell align="center">{offer.razon_social}</TableCell>}
+									{isAdmin && <TableCell align="center">{offer.rubro}</TableCell>}
 									<TableCell align="center">
 										<Typography sx={{ fontSize: 20, fontWeight: 'bold' }}>
 											{offer.count}
@@ -187,7 +218,19 @@ export default function OffersViewTable() {
 						</Typography>
 					</Box>
 				)}
+				{offersView && (
+					<TablePagination
+						rowsPerPageOptions={[10, 15]}
+						component="div"
+						count={offersView?.length}
+						rowsPerPage={rowsPerPage}
+						page={page}
+						onPageChange={handleChangePage}
+						onRowsPerPageChange={handleChangeRowsPerPage}
+					/>
+				)}
 			</TableContainer>
+			{/**
 			<Stack spacing={2} sx={{ mt: 2 }} alignItems="center">
 				<Pagination
 					count={count}
@@ -195,8 +238,10 @@ export default function OffersViewTable() {
 					shape="rounded"
 					page={parseInt(page) + 1}
 					onChange={handlePageActual}
-				/>
+					/>
 			</Stack>
+			*/}
+		
 		</Box>
 	);
 }

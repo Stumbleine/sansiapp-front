@@ -10,6 +10,7 @@ import API from '../Utils/conection';
  */
 const initialState = {
 	offersView: null,
+	originalOffers: null,
 	offersViewChart: null,
 	summary: null,
 	codeGenerated: null,
@@ -26,9 +27,8 @@ const staticsSlice = createSlice({
 	initialState,
 	reducers: {
 		setOffersView: (state, { payload }) => {
-			state.offersView = payload.offers;
-			state.total = payload.total;
-			
+			state.offersView = payload;
+			state.originalOffers = payload;
 		},
 		setOffersChart: (state, { payload }) => {
 			state.offersViewChart = payload;
@@ -52,6 +52,19 @@ const staticsSlice = createSlice({
 		setPage: (state, { payload }) => {
 			state.page = payload;
 		},
+		setOffersByFilter: (state, { payload }) => {
+			const { rubro, status } = payload;
+			state.offersView = state.originalOffers.filter(offer => {
+        if (rubro !== 'All' && status !== 'All') {
+          return offer.rubro === rubro && offer.status === status;
+        } else if (rubro !== 'All') {
+          return offer.rubro === rubro;
+        } else if (status !== 'All') {
+          return offer.status === status;
+        }
+        return true; // No filtering if both are 'All'
+      });
+		}
 	},
 });
 
@@ -62,7 +75,8 @@ export const {
 	setCodeGenerated,
 	setCodeRedeemed,
 	setCleanStatics,
-	setPage
+	setPage,
+	setOffersByFilter
 } = staticsSlice.actions;
 export default staticsSlice.reducer;
 /**

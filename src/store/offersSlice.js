@@ -11,6 +11,7 @@ import { convertToB64 } from '../Utils/Helper';
  */
 const initialState = {
 	offers: null,
+	offersOriginal: null,
 	fetchFailed: false,
 	isLoading: false,
 	filterLoading: false,
@@ -25,6 +26,7 @@ const offersSlice = createSlice({
 	reducers: {
 		setOffers: (state, { payload }) => {
 			state.offers = payload;
+			state.offersOriginal = payload;
 			state.fetchFailed = false;
 			state.isLoading = false;
 			state.filterLoading = false;
@@ -40,8 +42,17 @@ const offersSlice = createSlice({
 		},
 		setFilterLoading: state => {
 			state.filterLoading = true;
-
 			state.fetchFailed = false;
+		},
+		setFilterByRubro: (state, { payload }) => {
+			const { rubro } = payload;
+			if (rubro !== 'All') {
+				state.offers = state.offersOriginal.filter(
+					offer => offer.companie.rubro === rubro
+				);
+			} else {
+				state.offers = state.offersOriginal;
+			}
 		},
 	},
 });
@@ -188,6 +199,11 @@ export const soldOfferAsync = (token, id) => async dispatch => {
 	}
 };
 
-export const { setOffers, setLoading, setFetchFailed, setFilterLoading } =
-	offersSlice.actions;
+export const {
+	setOffers,
+	setLoading,
+	setFetchFailed,
+	setFilterLoading,
+	setFilterByRubro,
+} = offersSlice.actions;
 export default offersSlice.reducer;

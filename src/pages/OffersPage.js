@@ -22,7 +22,7 @@ import RoleLabel from '../components/label/RoleLabel';
 import SkeletonOffer from '../components/skeletons/SkeletonOffer';
 import SnackAlert from '../components/SnackAlert';
 import WarningLabel from '../components/label/WarningLabel';
-import { filterOffersAsync, getOffersAsync } from '../store/offersSlice';
+import { filterOffersAsync, getOffersAsync, setFilterByRubro } from '../store/offersSlice';
 import { hasPrivilege } from '../Utils/RBAC';
 import API from '../Utils/conection';
 import Sponsor from '../components/cards/Sponsor';
@@ -142,7 +142,7 @@ export default function OffersPage() {
 
 	const handleRubro = event => {
 		setRubro(event.target.value);
-		dispatch(offersViewAsync(accessToken, search, idc, status, event.target.value));
+		dispatch(setFilterByRubro({"rubro":event.target.value}));
 	};
 
 	const [companies, setCompanies] = useState(null);
@@ -269,8 +269,12 @@ export default function OffersPage() {
 									<MenuItem value="All">Todos</MenuItem>
 									<MenuItem value="VIGENTE">Vigente</MenuItem>
 									<MenuItem value="EXPIRADO">Expirado</MenuItem>
+						<MenuItem value="AGOTADO">Agotado</MenuItem>
+
 								</Select>
 							</FormControl>
+							{
+								isAdmin &&
 							<FormControl sx={{ minWidth: { xs: 1, sm: 160 } }} size="small">
 								<InputLabel id="rubro-label">Rubro</InputLabel>
 								<Select
@@ -287,6 +291,7 @@ export default function OffersPage() {
 									))}
 								</Select>
 							</FormControl>
+								}
 						</FilterBar>
 
 						{showButton && (
